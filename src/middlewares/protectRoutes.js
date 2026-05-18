@@ -1,20 +1,23 @@
 const protectRoutes = (req, res, next) => {
+  // Normaliza o path (remove a barra final se existir)
+  const path = req.path.replace(/\/$/, '') || '/';
+  const method = req.method;
+
   const publicRoutes = ['/session', '/session/refresh', '/users'];
   
-  // Whitelist: POST /session, POST /session/refresh, POST /users
-  if (req.method === 'POST' && publicRoutes.includes(req.path)) {
+  // Whitelist: POST nestas rotas é sempre público
+  if (method === 'POST' && publicRoutes.includes(path)) {
     return next();
   }
 
-  // GET /session exige login
-  if (req.method === 'GET' && req.path === '/session') {
-    if (!req.context.me) return res.status(401).send({ message: 'Unauthorized' });
+  // GET em qualquer rota (exceto /session) também é público conforme o enunciado
+  if (method === 'GET' && path !== '/session') {
     return next();
   }
 
-  // Bloqueio de Escrita (POST, PUT, DELETE) exige login
-  if (['POST', 'PUT', 'DELETE'].includes(req.method)) {
-    if (!req.context.me) return res.status(401).send({ message: 'Unauthorized' });
+  // Se não tem usuário autenticado no context, bloqueia
+  if (!req.context.me) {
+    return res.status(401).send({ message: 'Unauthorized' });
   }
 
   next();
