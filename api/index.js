@@ -7,9 +7,6 @@ import protectRoutes from '../src/middlewares/protectRoutes.js';
 import sessionRoutes from '../src/routes/session.js';
 import messageRoutes from '../src/routes/message.js';
 
-
-app.use('/messages', messageRoutes);
-
 const app = express();
 app.use(express.json());
 
@@ -25,6 +22,7 @@ app.use(protectRoutes);
 
 // Rotas
 app.use('/session', sessionRoutes);
+app.use('/messages', messageRoutes);
 
 // Porta
 const port = process.env.PORT || 3000;
