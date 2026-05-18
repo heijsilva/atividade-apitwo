@@ -1,3 +1,4 @@
+import pg from 'pg';
 import Sequelize from 'sequelize';
 import user from './user.js';
 import message from './message.js';
@@ -5,6 +6,7 @@ import refreshToken from './refreshToken.js';
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: 'postgres',
+  dialectModule: pg,
   dialectOptions: {
     ssl: { require: true, rejectUnauthorized: false },
   },
