@@ -1,22 +1,20 @@
 const protectRoutes = (req, res, next) => {
-  const publicRoutes = [
-    { method: 'POST', path: '/session' },
-    { method: 'POST', path: '/session/refresh' },
-    { method: 'POST', path: '/users' }
-  ];
-
-  const isPublic = publicRoutes.some(
-    route => route.method === req.method && req.path === route.path
-  );
-
-  // Se for GET (público), exceto /session
-  if (req.method === 'GET' && req.path !== '/session') {
+  const publicRoutes = ['/session', '/session/refresh', '/users'];
+  
+  // Whitelist: POST /session, POST /session/refresh, POST /users
+  if (req.method === 'POST' && publicRoutes.includes(req.path)) {
     return next();
   }
 
-  // Se não estiver autenticado e não for rota pública da whitelist
-  if (!req.context.me && !isPublic) {
-    return res.status(401).send({ message: 'Acesso não autorizado.' });
+  // GET /session exige login
+  if (req.method === 'GET' && req.path === '/session') {
+    if (!req.context.me) return res.status(401).send({ message: 'Unauthorized' });
+    return next();
+  }
+
+  // Bloqueio de Escrita (POST, PUT, DELETE) exige login
+  if (['POST', 'PUT', 'DELETE'].includes(req.method)) {
+    if (!req.context.me) return res.status(401).send({ message: 'Unauthorized' });
   }
 
   next();
