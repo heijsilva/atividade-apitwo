@@ -22,7 +22,7 @@ const login = async (req, res) => {
   const refreshToken = await req.context.models.RefreshToken.create({
     token: uuidv4(),
     userId: user.id,
-    expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias
+    expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   });
 
   return res.send({ token, refreshToken: refreshToken.token });
@@ -50,7 +50,8 @@ const refresh = async (req, res) => {
   });
 
   const newRefreshTokenStr = uuidv4();
-  await oldRefreshToken.update({ token: newRefreshTokenStr }); // Requisito: manter a mesma expiração
+  // ✅ Mantém a mesma data de expiração do token original
+  await oldRefreshToken.update({ token: newRefreshTokenStr });
 
   return res.send({ token: newToken, refreshToken: newRefreshTokenStr });
 };
